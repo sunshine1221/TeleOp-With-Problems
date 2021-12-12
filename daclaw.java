@@ -12,6 +12,9 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name = "The claw! Ooooooooh!")
 public class daclaw extends LinearOpMode {
     //Creating motor
+    /* Please elaborate - what motor is being initialized here?  Best practice would be to name the motor after its function; changes would need to be made 
+       to the configuration file as well.  Changing the configuration helps the builders, who are currently placing wires into their proper ports.  
+   */
     DcMotor motor1;
     //Creating Button Values
     boolean a, b;
@@ -27,7 +30,9 @@ public class daclaw extends LinearOpMode {
     boolean clawon = false;
     double x2;
     // x is value of wheels, back is -x,  y+x y-x
+    // What is y?
     //Creating another motor
+    //Is just one motor being created, or are the motors for the chassis being initialized?
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
@@ -36,6 +41,7 @@ public class daclaw extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException{
         //What happens during program
+        //This is not what happens during the program.  What is the purpose of this section of code?
         motor1 = hardwareMap.dcMotor.get("claw");
         motor = hardwareMap.dcMotor.get("motor");
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
@@ -45,14 +51,24 @@ public class daclaw extends LinearOpMode {
         wheel = hardwareMap.dcMotor.get("wheel");
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        
+        // Is there any telemetry that might be useful here?
+        
         waitForStart();
+        
         while (opModeIsActive()){
+            
+            // Please think about the purpose of a variable.  Are these variables needed?  Do they help make the code more readable?
+            
             b1 = gamepad2.right_bumper;
             a1 = gamepad2.left_bumper;
             a2 = gamepad2.a;
             b2 = gamepad2.b;
 
             //Opening/closing claw
+            // Please think about the logic of this code.  Is there a simpler way to accomplish this task without a clawon variable?
+            // Hint: I think there is!
+           
             if(a1 && clawon){
                 motor1.setPower(0.25);
                 clawon = false;
@@ -65,6 +81,8 @@ public class daclaw extends LinearOpMode {
                 motor1.setPower(0);
                 clawon = true;
             }
+            
+            
             //Moves lift based on button
             if(a2){
                 movingvoid(800);
@@ -72,6 +90,9 @@ public class daclaw extends LinearOpMode {
             if(b2){
                 movingvoid(-800);
             }
+            
+            // Why are some variable names being reused?  Again, do these variables make the code more readable?
+            
             a1 = gamepad2.a;
             b1 = gamepad2.b;
             y = gamepad1.left_stick_y;
@@ -144,8 +165,12 @@ public class daclaw extends LinearOpMode {
             wheel.setPower(0);
         }
     }
+    
+    // Why is the method named movingvoid?  Please explain what the code does. 
     public void movingvoid(double ticks){
         int newTarget;
+        
+        // What is the purpose of speed2?  It appears to always be set to 1 and does not change.
         double speed2 = 1;
         if(opModeIsActive()){
             newTarget = motor.getCurrentPosition() + (int)ticks;
