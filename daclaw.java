@@ -4,28 +4,30 @@ import static java.lang.Math.abs;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp(name = "The claw! Ooooooooh!")
 public class daclaw extends LinearOpMode {
+    //Creating motor
     DcMotor motor1;
-    //Buttons for wheel
+    //Creating Button Values
     boolean a, b;
-    //Joystick values
     double x;
     double y;
     double p;
-    //bumper and buttons (left) for cascading lift and claw
     boolean a1, b1, a2, b2;
-    //Wheel speed
     boolean up, down, left, right;
     double speed;
+    //Creating another motor
     DcMotor motor;
     boolean wheelon = false;
+    boolean clawon = false;
     double x2;
     // x is value of wheels, back is -x,  y+x y-x
+    //Creating another motor
     DcMotor frontLeft;
     DcMotor frontRight;
     DcMotor backLeft;
@@ -33,6 +35,7 @@ public class daclaw extends LinearOpMode {
     DcMotor wheel;
     @Override
     public void runOpMode() throws InterruptedException{
+        //What happens during program
         motor1 = hardwareMap.dcMotor.get("claw");
         motor = hardwareMap.dcMotor.get("motor");
         frontLeft = hardwareMap.dcMotor.get("frontLeft");
@@ -40,7 +43,6 @@ public class daclaw extends LinearOpMode {
         backLeft = hardwareMap.dcMotor.get("backLeft");
         backRight = hardwareMap.dcMotor.get("backRight");
         wheel = hardwareMap.dcMotor.get("wheel");
-        //Setting lift to encoders
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         waitForStart();
@@ -49,26 +51,27 @@ public class daclaw extends LinearOpMode {
             a1 = gamepad2.left_bumper;
             a2 = gamepad2.a;
             b2 = gamepad2.b;
-            
-            //Open/Close claw
-            if(a1){
+
+            //Opening/closing claw
+            if(a1 && clawon){
                 motor1.setPower(0.25);
-                sleep(250);
-                motor1.setPower(0);
+                clawon = false;
             }
-            if (b1){
+            if(b1 && clawon){
                 motor1.setPower(-0.25);
-                sleep(250);
-                motor1.setPower(0);
+                clawon = false;
             }
-            //Move lift
+            if((a1 && !clawon) || (b1 && !clawon)){
+                motor1.setPower(0);
+                clawon = true;
+            }
+            //Moves lift based on button
             if(a2){
                 movingvoid(800);
             }
             if(b2){
                 movingvoid(-800);
             }
-            //Extra driving code (working)
             a1 = gamepad2.a;
             b1 = gamepad2.b;
             y = gamepad1.left_stick_y;
@@ -82,7 +85,7 @@ public class daclaw extends LinearOpMode {
             left = gamepad1.dpad_left;
             right = gamepad1.dpad_right;
 
-            //Setting wheel speeds
+            //Setting wheel speed based on directional values
             if(up){
                 speed = 0.8;
             }
@@ -95,6 +98,7 @@ public class daclaw extends LinearOpMode {
             if(right){
                 speed = 0.6;
             }
+            //Moving wheel with speed set
             if(a && wheelon){
                 wheel.setPower(-speed);
                 wheelon = false;
@@ -116,7 +120,7 @@ public class daclaw extends LinearOpMode {
             //frontRight.setPower(Range.clip(y - (0.5 * x), -1.0, 1.0));
             //backLeft.setPower(Range.clip(-y + (0.5 * x), -1.0, 1.0));
             //backRight.setPower(Range.clip(y + (0.5 * x), -1.0, 1.0));
-            //Mecanum with only one happening per instance
+            //Moving robot based on controller inputs as numbers
             if(abs(x) > abs(y) && abs(x) > abs(x2)){
                 frontLeft.setPower(Range.clip(-x, -1.0, 1.0));
                 frontRight.setPower(Range.clip(x, -1.0, 1.0));
@@ -143,7 +147,7 @@ public class daclaw extends LinearOpMode {
     public void movingvoid(double ticks){
         int newTarget;
         double speed2 = 1;
-        if(opModeIsActive() && motor.getCurrentPosition() >= 0 && motor.getCurrentPosition() <= 3190){
+        if(opModeIsActive()){
             newTarget = motor.getCurrentPosition() + (int)ticks;
             motor.setTargetPosition(newTarget);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -171,3 +175,4 @@ public class daclaw extends LinearOpMode {
         */
     }
 }
+
